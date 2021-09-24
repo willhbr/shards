@@ -51,6 +51,7 @@ module Shards
 
       # don't change protocol from ssh
       GitResolver.normalize_key_source("git", "ssh://git@github.com/Repo/Path?Shallow=true").should eq({"git", "ssh://git@github.com/Repo/Path?Shallow=true"})
+      GitResolver.normalize_key_source("git", "ssh://git@github.com:4321/Repo/Path?Shallow=true").should eq({"git", "ssh://git@github.com:4321/Repo/Path?Shallow=true"})
     end
 
     it "available releases" do

@@ -105,7 +105,7 @@ module Shards
     def self.normalize_key_source(key : String, source : String) : {String, String}
       case key
       when "git"
-        uri = URI.parse(source)
+        uri = GitResolver.parse_uri(source)
         downcased_host = uri.host.try &.downcase
         scheme = uri.scheme.try &.downcase
         if scheme.in?("git", "http", "https") && downcased_host && downcased_host.in?(KNOWN_PROVIDERS)
@@ -223,7 +223,7 @@ module Shards
 
     def local_path
       @local_path ||= begin
-        uri = parse_uri(git_url)
+        uri = GitResolver.parse_uri(git_url)
 
         path = uri.path
         path += ".git" unless path.ends_with?(".git")
@@ -365,14 +365,14 @@ module Shards
       return false if origin_url == git_url
       return true if origin_url.nil? || git_url.nil?
 
-      origin_parsed = parse_uri(origin_url)
-      git_parsed = parse_uri(git_url)
+      origin_parsed = GitResolver.parse_uri(origin_url)
+      git_parsed = GitResolver.parse_uri(git_url)
 
       (origin_parsed.host != git_parsed.host) || (origin_parsed.path != git_parsed.path)
     end
 
     # Parses a URI string, with additional support for ssh+git URI schemes.
-    private def parse_uri(raw_uri)
+    protected def self.parse_uri(raw_uri)
       # Need to check for file URIs early, otherwise generic parsing will fail on a colon.
       if (path = raw_uri.lchop?("file://"))
         return URI.new(scheme: "file", path: path)
